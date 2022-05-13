@@ -83,18 +83,23 @@ function loadHotkeys()
 	defaultHotkey = lines[2]:upper():gsub('%s+', '')
 	classicHotkey = lines[4]:upper():gsub('%s+', '')
 	remasteredHotkey = lines[6]:upper():gsub('%s+', '')
-	UDF1.CELabel2.setCaption("Press " .. defaultHotkey .. " to change to the Default Soundtrack")
+	UDF1.CELabel2.setCaption("Press " .. defaultHotkey .. " to change to the Custom Soundtrack")
 	UDF1.CELabel3.setCaption("Press " .. classicHotkey .. " to change to the Classic Soundtrack")
 	UDF1.CELabel4.setCaption("Press " .. remasteredHotkey .. " to change to the Remastered Soundtrack")
 end
 
 function loadSettings()
-	settings=getSettings('KH2TrackSwitcher')
+	settings=getSettings('KH2SoundtrackSwitcher')
 	if #settings.Value['lastSelection'] == 0 then
-		settings.Value['lastSelection'] = "Default"	
+		settings.Value['lastSelection'] = "Remastered"	
+	end
+	if #settings.Value['attachementSound'] == 0 then
+		settings.Value['attachementSound'] = true	
 	end
 	lastSelection = settings.Value['lastSelection']
+	attachementSound = settings.Value['attachementSound']
 	UDF1.CELabel7.setCaption(lastSelection)
+	UDF1.CECheckbox1.setState(attachementSound)
 end
 
 function attach(timer)
@@ -102,7 +107,7 @@ function attach(timer)
 		timer.destroy()
 		openProcess(PROCESS_NAME)
 		scanMusic()
-		if lastSelection == "Default" then
+		if lastSelection == "Custom" then
 			writeDefaultMusic()
 		elseif lastSelection == "Classic" then
 			writeClassicMusic()
@@ -110,9 +115,11 @@ function attach(timer)
 			writeRemasteredMusic()
 		end
 		UDF1.CELabel1.setCaption("Attached")
-		sound = createMemoryStream()
-		sound.loadFromFile(getCheatEngineDir() .. "sound.wav")
-		playSound(sound)
+		if attachementSound == true then
+			sound = createMemoryStream()
+			sound.loadFromFile(getCheatEngineDir() .. "sound.wav")
+			playSound(sound)
+		end
 	end
 end
 
@@ -120,7 +127,7 @@ function switch(timer)
 	if scanned == true then
 		if isKeyPressed(defaultHotkey) == true then
 			writeDefaultMusic()
-            UDF1.CELabel7.setCaption("Default")
+            UDF1.CELabel7.setCaption("Custom")
 		elseif isKeyPressed(classicHotkey) == true then
 			writeClassicMusic()
             UDF1.CELabel7.setCaption("Classic")
@@ -133,6 +140,7 @@ end
 
 function close(sender)
 	settings.Value['lastSelection'] = UDF1.CELabel7.getCaption()
+	settings.Value['attachementSound'] = UDF1.CECheckbox1.getState()
 	MainForm.Close()
 end
 
