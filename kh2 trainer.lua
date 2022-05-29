@@ -115,7 +115,7 @@ function attach(timer)
 			writeRemasteredMusic()
 		end
 		UDF1.CELabel1.setCaption("Attached")
-		if attachementSound == true then
+		if attachementSound == "1" then
 			sound = createMemoryStream()
 			sound.loadFromFile(getCheatEngineDir() .. "sound.wav")
 			playSound(sound)
